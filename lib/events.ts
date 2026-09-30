@@ -10,6 +10,7 @@ const EVENT_TAIL_MS = 8 * 3_600_000; // Party läuft über Mitternacht hinaus
 
 export function flyerUrl(p: string | null): string | null {
   if (!p) return null;
+  if (p.startsWith("/")) return p; // statisches Bild aus /public
   if (isMock) return `/uploads/${p}`;
   return `${SUPABASE_URL}/storage/v1/object/public/flyers/${p}`;
 }

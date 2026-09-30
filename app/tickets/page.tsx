@@ -26,10 +26,8 @@ export default async function Tickets() {
             const flyer = flyerUrl(e.flyer_path);
             const closed = e.status === "cancelled" || e.status === "sold_out";
             return (
-              <li key={e.id} id={e.slug} className="scroll-mt-24 grid gap-10 border-b border-line py-14 md:grid-cols-[14rem_1fr]">
-                <div className="relative hidden aspect-[4/5] bg-graphite md:block">
-                  {flyer && <Image src={flyer} alt={e.flyer_alt ?? e.title} fill sizes="224px" className="object-cover" />}
-                </div>
+              <li key={e.id} id={e.slug} className="scroll-mt-24 border-b border-line py-14">
+                {flyer && <Image src={flyer} alt={e.flyer_alt ?? e.title} width={1600} height={0} sizes="(max-width: 1280px) 100vw, 1200px" className="mb-10 h-auto w-full max-w-5xl" />}
                 <div>
                   <p className="label text-zinc">{fmtLong(e.starts_at)} · {fmtTime(e.starts_at)}{e.ends_at ? ` – ${fmtTime(e.ends_at)}` : ""}</p>
                   <h2 className="display mt-4 text-[clamp(2.5rem,7vw,6.5rem)]">{e.title}</h2>
