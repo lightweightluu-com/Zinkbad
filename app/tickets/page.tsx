@@ -22,12 +22,12 @@ export default async function Tickets() {
 
         {events.length === 0 && <p className="text-lg text-zinc">Aktuell sind keine Events mit Vorverkauf geplant.</p>}
         <ul className="border-t border-line">
-          {events.map((e) => {
+          {events.map((e, i) => {
             const flyer = flyerUrl(e.flyer_path);
             const closed = e.status === "cancelled" || e.status === "sold_out";
             return (
               <li key={e.id} id={e.slug} className="scroll-mt-24 border-b border-line py-14">
-                {flyer && <Image src={flyer} alt={e.flyer_alt ?? e.title} width={1600} height={0} sizes="(max-width: 1280px) 100vw, 1200px" className="mb-10 h-auto w-full max-w-5xl" />}
+                {flyer && <Image src={flyer} alt={e.flyer_alt ?? e.title} width={1600} height={Math.round(1600 / (e.flyer_ratio ?? 2.35))} priority={i === 0} sizes="(max-width: 1024px) 100vw, 1024px" className="mb-10 h-auto w-full max-w-5xl" />}
                 <div>
                   <p className="label text-zinc">{fmtLong(e.starts_at)} · {fmtTime(e.starts_at)}{e.ends_at ? ` – ${fmtTime(e.ends_at)}` : ""}</p>
                   <h2 className="display mt-4 text-[clamp(2.5rem,7vw,6.5rem)]">{e.title}</h2>

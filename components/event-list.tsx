@@ -7,7 +7,7 @@ import { Fade } from "./reveal";
 
 export interface EventRowData {
   slug: string; title: string; weekday: string; day: string; time: string;
-  lineup: string[]; flyer: string | null; flyerAlt: string; status: string; hasTickets: boolean;
+  lineup: string[]; flyer: string | null; flyerRatio: number; flyerAlt: string; status: string; hasTickets: boolean;
 }
 
 const badge: Record<string, string> = { sold_out: "Sold out", cancelled: "Abgesagt" };
@@ -47,7 +47,7 @@ export function EventList({ events }: { events: EventRowData[] }) {
                   </span>
                 </Link>
                 {e.flyer && (
-                  <Image src={e.flyer} alt={e.flyerAlt} width={1000} height={0} sizes="(max-width: 768px) 100vw, 0px" className="mb-7 h-auto w-full md:hidden" />
+                  <Image src={e.flyer} alt={e.flyerAlt} width={1000} height={Math.round(1000 / e.flyerRatio)} sizes="(max-width: 768px) 100vw, 0px" className="mb-7 h-auto w-full md:hidden" />
                 )}
               </Fade>
             </li>
@@ -59,7 +59,7 @@ export function EventList({ events }: { events: EventRowData[] }) {
         {hover?.flyer && (
           <motion.div key={hover.slug} style={{ x: sx, y: sy }} initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.92 }}
             transition={{ duration: 0.25 }} className="pointer-events-none fixed left-0 top-0 z-40 hidden w-[400px] md:block" aria-hidden>
-            <Image src={hover.flyer} alt="" width={800} height={0} sizes="400px" className="h-auto w-full" />
+            <Image src={hover.flyer} alt="" width={800} height={Math.round(800 / hover.flyerRatio)} sizes="400px" className="h-auto w-full" />
           </motion.div>
         )}
       </AnimatePresence>

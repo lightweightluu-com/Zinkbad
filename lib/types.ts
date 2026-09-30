@@ -27,6 +27,7 @@ export interface ClubEvent {
   description: string | null;
   flyer_path: string | null;
   flyer_alt: string | null;
+  flyer_ratio: number | null; // Breite/Höhe, verhindert Layout-Shift
   lineup: LineupEntry[];
   tickets: TicketType[];
   ticket_url: string | null;

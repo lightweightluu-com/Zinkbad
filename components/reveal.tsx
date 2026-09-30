@@ -13,14 +13,18 @@ export function Lines({ lines, className = "", delay = 0, immediate = false }: {
   return (
     <span className={`block ${className}`}>
       {lines.map((l, i) => (
-        <span key={i} className="block overflow-hidden pb-[0.12em] -mb-[0.12em]">
+        // Die Maske wird beobachtet (nicht das versteckte Kind), sonst löst der Observer nie zuverlässig aus.
+        <motion.span
+          key={i}
+          className="block overflow-hidden py-[0.12em] -my-[0.12em]"
+          initial="hidden"
+          {...(immediate ? { animate: "show" } : { whileInView: "show", viewport: { once: true, margin: "0px 0px -8% 0px" } })}
+        >
           <motion.span
             className="block"
-            initial={{ y: "105%" }}
-            {...(immediate ? { animate: { y: 0 } } : { whileInView: { y: 0 }, viewport: { once: true, margin: "0px 0px -8% 0px" } })}
-            transition={{ duration: 1.1, ease, delay: delay + i * 0.09 }}
+            variants={{ hidden: { y: "105%" }, show: { y: 0, transition: { duration: 1.1, ease, delay: delay + i * 0.09 } } }}
           >{accent(l)}</motion.span>
-        </span>
+        </motion.span>
       ))}
     </span>
   );

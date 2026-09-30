@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Countdown } from "@/components/countdown";
 import { EventList, type EventRowData } from "@/components/event-list";
 import { Footer } from "@/components/footer";
@@ -15,9 +16,10 @@ export const revalidate = 60;
 export default async function Home() {
   const events = await listUpcoming();
   const next = events.find((e) => e.status === "published" || e.status === "sold_out") ?? null;
+  const nextFlyer = next ? flyerUrl(next.flyer_path) : null;
   const rows: EventRowData[] = events.map((e) => ({
     slug: e.slug, title: e.title, weekday: fmtWeekday(e.starts_at), day: fmtDay(e.starts_at), time: fmtTime(e.starts_at),
-    lineup: e.lineup.map((l) => l.name), flyer: flyerUrl(e.flyer_path), flyerAlt: e.flyer_alt ?? e.title,
+    lineup: e.lineup.map((l) => l.name), flyer: flyerUrl(e.flyer_path), flyerRatio: e.flyer_ratio ?? 2.35, flyerAlt: e.flyer_alt ?? e.title,
     status: e.status, hasTickets: e.tickets.length > 0 || Boolean(e.ticket_url),
   }));
 
@@ -40,12 +42,18 @@ export default async function Home() {
         {next && (
           <section className="border-t border-line px-5 py-24 md:px-10 md:py-32">
             <p className="label mb-10 text-zinc">Next up</p>
-            <div className="grid gap-10 md:grid-cols-[1fr_auto] md:items-end">
+            <div className="grid gap-12 md:grid-cols-[1.1fr_1fr] md:items-end">
               <div>
-                <h2 className="display text-[clamp(3.5rem,12vw,12rem)]"><Lines lines={[next.title]} /></h2>
+                <h2 className="display text-[clamp(3rem,8.5vw,8.5rem)]"><Lines lines={[next.title]} /></h2>
                 <p className="label mt-8 text-zinc">{fmtWeekday(next.starts_at)} {fmtDay(next.starts_at)} · {fmtTime(next.starts_at)} · <span className="text-bone"><Countdown to={next.starts_at} /></span></p>
+                {next.lineup.length > 0 && <p className="label mt-4 text-zinc">{next.lineup.map((l) => l.name).join(" · ")}</p>}
+                <div className="mt-12"><MagneticLink href={`/tickets#${next.slug}`}>Tickets →</MagneticLink></div>
               </div>
-              <MagneticLink href={`/tickets#${next.slug}`}>Tickets →</MagneticLink>
+              {nextFlyer && (
+                <Fade delay={0.15}>
+                  <Image src={nextFlyer} alt={next.flyer_alt ?? next.title} width={1200} height={Math.round(1200 / (next.flyer_ratio ?? 2.35))} sizes="(max-width: 768px) 100vw, 50vw" className="h-auto w-full" />
+                </Fade>
+              )}
             </div>
           </section>
         )}

@@ -9,8 +9,11 @@ const EF = "https://eventfrog.ch";
 const now = "2026-09-30T00:00:00.000Z";
 type Seed = Partial<ClubEvent> & Pick<ClubEvent, "slug" | "title" | "starts_at">;
 
+const RATIOS: Record<string, number> = { "/flyers/stellarpulse.jpg": 5, "/flyers/why-not.png": 5, "/flyers/infinity-chamber.jpg": 2.3483 };
+
 const seed = (e: Seed): ClubEvent => ({
   id: `seed-${e.slug}`, ends_at: null, description: null, flyer_path: null, flyer_alt: null,
+  flyer_ratio: e.flyer_path ? (RATIOS[e.flyer_path] ?? 2.35) : null,
   lineup: [], tickets: [], ticket_url: null, status: "published", is_featured: false,
   created_at: now, updated_at: now, ...e,
 });

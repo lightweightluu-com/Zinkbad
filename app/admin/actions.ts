@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { MOCK_COOKIE, mockPasswordOk, mockSessionValue, requireAdmin } from "@/lib/auth";
 import { hasSupabase, isMock } from "@/lib/env";
-import { adminGet, createEvent, deleteEvent, removeFlyerFile, updateEvent, uploadFlyer } from "@/lib/events";
+import { adminGet, createEvent, deleteEvent, removeFlyerFile, updateEvent, uploadFlyer, type StoredFlyer } from "@/lib/events";
 import { sessionClient } from "@/lib/supabase/server";
 import { zurichLocalToIso } from "@/lib/time";
 import { eventInput, type EventInput } from "@/lib/types";
@@ -66,18 +66,18 @@ export async function saveEvent(id: string | null, _: FormState, fd: FormData): 
   const existing = id ? await adminGet(id) : null;
   if (id && !existing) return { error: "Event nicht gefunden" };
 
-  let newFlyer: string | undefined;
+  let newFlyer: StoredFlyer | undefined;
   try {
     if (file instanceof File && file.size > 0) newFlyer = await uploadFlyer(file);
     if (id) {
       const removing = fd.get("remove_flyer") === "on" && !newFlyer;
       await updateEvent(id, parsed.data, newFlyer ?? (removing ? null : undefined));
-      if (existing?.flyer_path && (newFlyer || removing)) await removeFlyerFile(existing.flyer_path);
+      if (existing?.flyer_path && (newFlyer || removing) && !existing.flyer_path.startsWith("/")) await removeFlyerFile(existing.flyer_path);
     } else {
       await createEvent(parsed.data, newFlyer ?? null);
     }
   } catch (e) {
-    if (newFlyer && !id) await removeFlyerFile(newFlyer).catch(() => {});
+    if (newFlyer && !id) await removeFlyerFile(newFlyer.path).catch(() => {});
     return { error: e instanceof Error ? e.message : "Speichern fehlgeschlagen" };
   }
   revalidatePath("/", "layout");

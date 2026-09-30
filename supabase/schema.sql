@@ -13,6 +13,7 @@ create table public.events (
   description text,
   flyer_path  text,
   flyer_alt   text,
+  flyer_ratio numeric,          -- Breite/Höhe des Flyers
   -- [{ "name": "DJ X", "instagram_url": "https://…" }], Headliner zuerst
   lineup      jsonb not null default '[]'::jsonb,
   -- [{ "id": "earlybird", "label": "1x EarlyBird", "price_chf": 45, "sold_out": false }]

@@ -3,6 +3,8 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import { hasSupabase, isMock, SUPABASE_URL } from "./env";
 import { readAll, writeAll } from "./mock-store";
+import { SEED_EVENTS } from "./seed-data";
+import { imageRatio } from "./image-size";
 import { anonClient, sessionClient } from "./supabase/server";
 import type { ClubEvent, EventInput } from "./types";
 
@@ -31,8 +33,9 @@ export async function listUpcoming(): Promise<ClubEvent[]> {
     if (error) throw error;
     return data as ClubEvent[];
   }
-  if (!isMock) return [];
-  return (await readAll()).filter((e) => e.status !== "draft" && e.starts_at >= since).sort(byStart);
+  // Ohne Supabase in Produktion: nur lesbare Startdaten (Vorschau-Deploys)
+  const all = isMock ? await readAll() : SEED_EVENTS;
+  return all.filter((e) => e.status !== "draft" && e.starts_at >= since).sort(byStart);
 }
 
 export async function getPublicBySlug(slug: string): Promise<ClubEvent | null> {
@@ -40,8 +43,8 @@ export async function getPublicBySlug(slug: string): Promise<ClubEvent | null> {
     const { data } = await anonClient().from("events").select("*").eq("slug", slug).neq("status", "draft").maybeSingle();
     return (data as ClubEvent) ?? null;
   }
-  if (!isMock) return null;
-  return (await readAll()).find((e) => e.slug === slug && e.status !== "draft") ?? null;
+  const all = isMock ? await readAll() : SEED_EVENTS;
+  return all.find((e) => e.slug === slug && e.status !== "draft") ?? null;
 }
 
 // ---------- Admin (Aufrufer müssen requireAdmin() bestanden haben) ----------
@@ -63,13 +66,15 @@ export async function adminGet(id: string): Promise<ClubEvent | null> {
   return (await readAll()).find((e) => e.id === id) ?? null;
 }
 
-export async function createEvent(input: EventInput, flyerPath: string | null): Promise<ClubEvent> {
+export interface StoredFlyer { path: string; ratio: number | null }
+
+export async function createEvent(input: EventInput, flyer: StoredFlyer | null): Promise<ClubEvent> {
   const slugBase = `${slugify(input.title)}-${input.starts_at.slice(0, 10)}`;
   if (hasSupabase) {
     const sb = await sessionClient();
     for (let i = 0; i < 5; i++) {
       const slug = i === 0 ? slugBase : `${slugBase}-${randomUUID().slice(0, 4)}`;
-      const { data, error } = await sb.from("events").insert({ ...input, slug, flyer_path: flyerPath }).select().single();
+      const { data, error } = await sb.from("events").insert({ ...input, slug, flyer_path: flyer?.path ?? null, flyer_ratio: flyer?.ratio ?? null }).select().single();
       if (!error) return data as ClubEvent;
       if (error.code !== "23505") throw error; // nur Slug-Kollision wiederholen
     }
@@ -78,13 +83,13 @@ export async function createEvent(input: EventInput, flyerPath: string | null): 
   const all = await readAll();
   const slug = all.some((e) => e.slug === slugBase) ? `${slugBase}-${randomUUID().slice(0, 4)}` : slugBase;
   const now = new Date().toISOString();
-  const ev: ClubEvent = { ...input, id: randomUUID(), slug, flyer_path: flyerPath, created_at: now, updated_at: now };
+  const ev: ClubEvent = { ...input, id: randomUUID(), slug, flyer_path: flyer?.path ?? null, flyer_ratio: flyer?.ratio ?? null, created_at: now, updated_at: now };
   await writeAll([...all, ev]);
   return ev;
 }
 
-export async function updateEvent(id: string, input: EventInput, flyerPath?: string | null): Promise<void> {
-  const patch = { ...input, ...(flyerPath !== undefined ? { flyer_path: flyerPath } : {}), updated_at: new Date().toISOString() };
+export async function updateEvent(id: string, input: EventInput, flyer?: StoredFlyer | null): Promise<void> {
+  const patch = { ...input, ...(flyer !== undefined ? { flyer_path: flyer?.path ?? null, flyer_ratio: flyer?.ratio ?? null } : {}), updated_at: new Date().toISOString() };
   if (hasSupabase) {
     const { error } = await (await sessionClient()).from("events").update(patch).eq("id", id);
     if (error) throw error;
@@ -99,22 +104,23 @@ export async function updateEvent(id: string, input: EventInput, flyerPath?: str
 
 export async function deleteEvent(id: string): Promise<void> {
   const ev = await adminGet(id);
+  const ownFile = ev?.flyer_path && !ev.flyer_path.startsWith("/") ? ev.flyer_path : null; // /public-Bilder nie löschen
   if (hasSupabase) {
     const sb = await sessionClient();
     const { error } = await sb.from("events").delete().eq("id", id);
     if (error) throw error;
-    if (ev?.flyer_path) await sb.storage.from("flyers").remove([ev.flyer_path]);
+    if (ownFile) await sb.storage.from("flyers").remove([ownFile]);
     return;
   }
   await writeAll((await readAll()).filter((e) => e.id !== id));
-  if (ev?.flyer_path) await fs.rm(path.join(process.cwd(), "public", "uploads", ev.flyer_path), { force: true });
+  if (ownFile) await fs.rm(path.join(process.cwd(), "public", "uploads", ownFile), { force: true });
 }
 
 const MIME: Record<string, string> = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" };
 const MAX_FLYER = 6 * 1024 * 1024;
 
-/** Validiert (Typ per Magic Bytes, Grösse) und speichert den Flyer. Gibt den Storage-Pfad zurück. */
-export async function uploadFlyer(file: File): Promise<string> {
+/** Validiert (Typ per Magic Bytes, Grösse) und speichert den Flyer. Gibt Pfad und Seitenverhältnis zurück. */
+export async function uploadFlyer(file: File): Promise<StoredFlyer> {
   const buf = Buffer.from(await file.arrayBuffer());
   if (buf.length > MAX_FLYER) throw new Error("Flyer zu gross (max. 6 MB)");
   const type =
@@ -131,7 +137,7 @@ export async function uploadFlyer(file: File): Promise<string> {
     await fs.mkdir(dir, { recursive: true });
     await fs.writeFile(path.join(dir, name), buf);
   }
-  return name;
+  return { path: name, ratio: imageRatio(buf) };
 }
 
 export async function removeFlyerFile(p: string) {
