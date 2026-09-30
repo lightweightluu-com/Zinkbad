@@ -10,8 +10,17 @@
   --color-danger: #ff5a4f;
   --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-mono), ui-monospace, monospace;
+  --font-display: var(--font-display), Impact, sans-serif;
 }
 
 html { background: var(--color-ink); color: var(--color-bone); color-scheme: dark; }
 body { font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
 ::selection { background: var(--color-cyan); color: var(--color-ink); }
+
+.display { font-family: var(--font-display); text-transform: uppercase; line-height: 0.88; letter-spacing: -0.01em; }
+.label { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.14em; text-transform: uppercase; }
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+@keyframes marquee { to { transform: translateX(-50%); } }
+.marquee-track { animation: marquee 28s linear infinite; }
