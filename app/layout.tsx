@@ -8,6 +8,8 @@ const display = Anton({ subsets: ["latin"], weight: "400", variable: "--font-dis
 const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono", display: "swap" });
 
 export const metadata: Metadata = {
+  // Testdomain nicht indexieren; für Livegang NEXT_PUBLIC_INDEXABLE=1 beim Build setzen
+  robots: process.env.NEXT_PUBLIC_INDEXABLE === "1" ? undefined : { index: false, follow: false },
   title: "Z!NKBAD CLUB — Zürich",
   description: "Z!NKBAD Club, Geerenweg 2, 8048 Zürich. Events, Tickets und Membercards.",
 };

@@ -20,3 +20,14 @@ Preise kommen serverseitig aus der DB bzw. `lib/membership.ts`.
 
 ## Hero
 Das Hero-Bild ist ein generiertes Laser-Canvas (`components/laser-canvas.tsx`). Optional kann `NEXT_PUBLIC_HERO_VIDEO` ein Video darüberlegen.
+
+## Deployment (Cloudflare Workers)
+`.github/workflows/deploy.yml` baut mit OpenNext und deployt per Wrangler auf `zinkbad.lightweightluu.com` (siehe `wrangler.jsonc`).
+
+Einmalig nötig:
+1. GitHub → Settings → Secrets and variables → Actions: `CLOUDFLARE_API_TOKEN` (Vorlage «Edit Cloudflare Workers», plus Zone-DNS-Edit für lightweightluu.com) und `CLOUDFLARE_ACCOUNT_ID`.
+2. Die Zone `lightweightluu.com` muss im selben Cloudflare-Account liegen. Für den Custom Domain legt Cloudflare den DNS-Eintrag selbst an.
+3. Für Livegang `NEXT_PUBLIC_INDEXABLE=1` setzen, sonst `noindex`.
+
+Ohne Supabase-Variablen zeigt die Seite nur die Startdaten (schreibgeschützt), der Admin ist dann gesperrt.
+Lokal testen: `npm run cf:preview`.
