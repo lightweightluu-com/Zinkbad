@@ -1,7 +1,7 @@
 "use client";
 import { motion, useScroll, useTransform } from "motion/react";
-import Image from "next/image";
 import { useRef } from "react";
+import { LaserCanvas } from "./laser-canvas";
 import { Lines } from "./reveal";
 
 export function Hero({ nextLine }: { nextLine: string | null }) {
@@ -15,10 +15,10 @@ export function Hero({ nextLine }: { nextLine: string | null }) {
   return (
     <section ref={ref} className="relative h-[100svh] min-h-[560px] overflow-hidden">
       <motion.div style={{ scale }} className="absolute inset-0">
-        <Image src="/img/hero.jpg" alt="Dancefloor im Z!NKBAD mit Lasern und Konfetti" fill priority sizes="100vw" className="object-cover" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_90%_60%_at_50%_0%,rgba(0,204,255,0.16),transparent_70%),radial-gradient(ellipse_80%_45%_at_50%_105%,rgba(0,204,255,0.14),transparent_70%)]" />
+        <LaserCanvas className="absolute inset-0" />
         {video && <video src={video} autoPlay muted loop playsInline className="absolute inset-0 h-full w-full object-cover" />}
       </motion.div>
-      <div className="absolute inset-0 bg-ink/55" />
       <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-ink to-transparent" />
 
       <motion.div style={{ y: titleY, opacity: fade }} className="absolute inset-x-0 bottom-0 px-5 pb-10 md:px-10 md:pb-14">

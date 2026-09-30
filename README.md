@@ -17,3 +17,6 @@ Admin-Login unter `/admin/login` mit `MOCK_ADMIN_PASSWORD` (Default `zinkbad-dev
 ## Kauf
 `/api/checkout?member=black|silver|gold` bzw. `?event=<slug>&ticket=<id>` leitet auf Payrexx weiter.
 Preise kommen serverseitig aus der DB bzw. `lib/membership.ts`.
+
+## Hero
+Das Hero-Bild ist ein generiertes Laser-Canvas (`components/laser-canvas.tsx`). Optional kann `NEXT_PUBLIC_HERO_VIDEO` ein Video darüberlegen.

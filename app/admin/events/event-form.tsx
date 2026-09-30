@@ -4,6 +4,7 @@ import { isoToZurichLocal } from "@/lib/time";
 import { STATUSES, type ClubEvent } from "@/lib/types";
 import { removeEvent, saveEvent } from "../actions";
 import { DeleteButton, FormShell } from "./form-shell";
+import { LineupEditor, TicketEditor } from "./repeater";
 
 const label = "mb-2 block uppercase tracking-widest text-zinc";
 const field = "w-full border border-line bg-graphite px-3 py-3 outline-none focus:border-cyan";
@@ -26,10 +27,10 @@ export function EventForm({ event }: { event?: ClubEvent }) {
         </div>
         <div><label className={label} htmlFor="description">Beschreibung</label>
           <textarea id="description" name="description" rows={5} defaultValue={event?.description ?? ""} className={field} /></div>
-        <div><label className={label} htmlFor="lineup">Line-up (pro Zeile: Name | Instagram-URL)</label>
-          <textarea id="lineup" name="lineup" rows={4} defaultValue={event?.lineup.map((l) => l.instagram_url ? `${l.name} | ${l.instagram_url}` : l.name).join("\n")} className={field} /></div>
-        <div><label className={label} htmlFor="tickets">Tickets (pro Zeile: id | Label | Preis CHF | soldout)</label>
-          <textarea id="tickets" name="tickets" rows={3} placeholder="earlybird | 1x EarlyBird | 45" defaultValue={event?.tickets.map((t) => `${t.id} | ${t.label} | ${t.price_chf}${t.sold_out ? " | soldout" : ""}`).join("\n")} className={field} /></div>
+        <div><span className={label}>Line-up (Headliner zuerst)</span>
+          <LineupEditor initial={event?.lineup ?? []} /></div>
+        <div><span className={label}>Tickets (Kauf über Payrexx)</span>
+          <TicketEditor initial={event?.tickets ?? []} /></div>
         <div><label className={label} htmlFor="ticket_url">Externer Ticket-Link (optional, ersetzt Payrexx)</label>
           <input id="ticket_url" name="ticket_url" type="url" defaultValue={event?.ticket_url ?? ""} className={field} /></div>
         <div><label className={label} htmlFor="flyer">Flyer (JPG/PNG/WebP, max. 6 MB)</label>

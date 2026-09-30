@@ -35,16 +35,9 @@ function parse(fd: FormData): { ok: true; data: EventInput } | { ok: false; erro
   try {
     const local = (k: string) => { const v = String(fd.get(k) ?? "").trim(); return v ? zurichLocalToIso(v) : null; };
     const text = (k: string) => String(fd.get(k) ?? "").trim() || null;
-    // Line-up: eine Zeile pro Act ("Name | instagram-url")
-    const lineup = String(fd.get("lineup") ?? "").split("\n").map((l) => l.trim()).filter(Boolean).map((l) => {
-      const [name, ig] = l.split("|").map((s) => s.trim());
-      return { name, instagram_url: ig || undefined };
-    });
-    // Tickets: eine Zeile pro Typ ("id | Label | Preis CHF | soldout?")
-    const tickets = String(fd.get("tickets") ?? "").split("\n").map((l) => l.trim()).filter(Boolean).map((l) => {
-      const [id, label, price, sold] = l.split("|").map((s) => s.trim());
-      return { id, label, price_chf: Number(price), sold_out: sold?.toLowerCase() === "soldout" };
-    });
+    const json = (k: string) => { try { const v = JSON.parse(String(fd.get(k) ?? "[]")); return Array.isArray(v) ? v : []; } catch { return []; } };
+    const lineup = json("lineup_json");
+    const tickets = json("tickets_json");
     const res = eventInput.safeParse({
       title: fd.get("title"), starts_at: local("starts_at"), ends_at: local("ends_at"),
       description: text("description"), flyer_alt: text("flyer_alt"), lineup, tickets,

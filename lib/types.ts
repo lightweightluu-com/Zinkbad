@@ -46,7 +46,7 @@ export const eventInput = z
     description: z.string().trim().max(4000).nullable(),
     flyer_alt: z.string().trim().max(200).nullable(),
     lineup: z.array(lineupEntry).max(40),
-    tickets: z.array(ticketType).max(10),
+    tickets: z.array(ticketType).max(10).refine((t) => new Set(t.map((x) => x.id)).size === t.length, { message: "Ticket-Namen müssen eindeutig sein" }),
     ticket_url: z.string().url().nullable(),
     status: z.enum(STATUSES),
     is_featured: z.boolean(),

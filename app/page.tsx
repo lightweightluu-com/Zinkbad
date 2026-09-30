@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { Countdown } from "@/components/countdown";
 import { EventList, type EventRowData } from "@/components/event-list";
+import { FlyerStrip } from "@/components/flyer-strip";
 import { Footer } from "@/components/footer";
 import { Hero } from "@/components/hero";
 import { InfoSection } from "@/components/info-section";
@@ -16,6 +17,9 @@ export const revalidate = 60;
 export default async function Home() {
   const events = await listUpcoming();
   const next = events.find((e) => e.status === "published" || e.status === "sold_out") ?? null;
+  const strip = events.filter((e) => e.status !== "cancelled").map((e) => ({
+    slug: e.slug, title: e.title, when: `${fmtWeekday(e.starts_at)} ${fmtDay(e.starts_at)}`, flyer: flyerUrl(e.flyer_path), ratio: e.flyer_ratio ?? 2.35,
+  }));
   const nextFlyer = next ? flyerUrl(next.flyer_path) : null;
   const rows: EventRowData[] = events.map((e) => ({
     slug: e.slug, title: e.title, weekday: fmtWeekday(e.starts_at), day: fmtDay(e.starts_at), time: fmtTime(e.starts_at),
@@ -57,6 +61,8 @@ export default async function Home() {
             </div>
           </section>
         )}
+
+        {strip.length >= 3 && <FlyerStrip items={strip} />}
 
         <section id="events" className="border-t border-line px-5 py-40 md:px-10 md:py-56">
           <p className="label mb-10 text-zinc">02 — Events</p>
