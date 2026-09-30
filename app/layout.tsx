@@ -1,0 +1,19 @@
+import type { Metadata } from "next";
+import { Inter_Tight, JetBrains_Mono } from "next/font/google";
+import "./globals.css";
+
+const body = Inter_Tight({ subsets: ["latin"], variable: "--font-body", display: "swap" });
+const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono", display: "swap" });
+
+export const metadata: Metadata = {
+  title: "Z!NKBAD CLUB — Zürich",
+  description: "Z!NKBAD Club, Geerenweg 2, 8048 Zürich. Events, Tickets und Membercards.",
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="de" className={`${body.variable} ${mono.variable}`}>
+      <body>{children}</body>
+    </html>
+  );
+}

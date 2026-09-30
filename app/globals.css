@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #0a0a0b;
+  --color-graphite: #141416;
+  --color-line: #26272b;
+  --color-zinc: #8c9096;
+  --color-bone: #ecebe6;
+  --color-cyan: #00ccff; /* Zinkbad-Brand */
+  --color-danger: #ff5a4f;
+  --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-mono), ui-monospace, monospace;
+}
+
+html { background: var(--color-ink); color: var(--color-bone); color-scheme: dark; }
+body { font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+::selection { background: var(--color-cyan); color: var(--color-ink); }
