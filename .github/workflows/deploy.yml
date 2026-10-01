@@ -37,9 +37,10 @@ jobs:
       - name: Build (Cloudflare)
         run: npx opennextjs-cloudflare build
         env:
-          # Öffentliche Werte (landen ohnehin im Browser). Als Repository-VARIABLEN anlegen, nicht als Secrets.
-          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          # Öffentliche Werte (Projekt-URL und publishable Key stehen ohnehin im Browser, RLS schützt die Daten).
+          # Standard = Projekt «Zinkbad»; mit Repository-Variablen überschreibbar. Nie den service_role-Key hier eintragen.
+          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL || 'https://kdnxaiysxelksfrepnui.supabase.co' }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'sb_publishable_tqLhT23zax1BakMyHP1Tgw_BQlpB6q7' }}
           NEXT_PUBLIC_INDEXABLE: ${{ vars.NEXT_PUBLIC_INDEXABLE }}
       - uses: cloudflare/wrangler-action@v3
         with:
