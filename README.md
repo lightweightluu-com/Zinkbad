@@ -31,3 +31,7 @@ Einmalig nötig:
 
 Ohne Supabase-Variablen zeigt die Seite nur die Startdaten (schreibgeschützt), der Admin ist dann gesperrt.
 Lokal testen: `npm run cf:preview`.
+
+### Build-Variablen für den Deploy (GitHub → Settings → Secrets and variables → Actions → **Variables**)
+`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` (beide öffentlich, gehören zu Supabase → Project Settings → API) und optional `NEXT_PUBLIC_INDEXABLE=1` für den Livegang.
+Den `service_role`-Schlüssel nirgends eintragen, die App braucht ihn nicht.

@@ -34,7 +34,13 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm test
-      - run: npx opennextjs-cloudflare build
+      - name: Build (Cloudflare)
+        run: npx opennextjs-cloudflare build
+        env:
+          # Öffentliche Werte (landen ohnehin im Browser). Als Repository-VARIABLEN anlegen, nicht als Secrets.
+          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_INDEXABLE: ${{ vars.NEXT_PUBLIC_INDEXABLE }}
       - uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
