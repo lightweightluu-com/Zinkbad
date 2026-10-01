@@ -14,7 +14,7 @@ export function Hero() {
   const video = process.env.NEXT_PUBLIC_HERO_VIDEO;
 
   return (
-    <section ref={ref} className="relative flex min-h-[58svh] items-end overflow-hidden">
+    <section ref={ref} className="relative flex min-h-[58svh] items-end overflow-hidden fp:h-full fp:min-h-0">
       <motion.div style={{ scale }} className="absolute inset-0">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_90%_60%_at_50%_0%,rgba(0,204,255,0.16),transparent_70%),radial-gradient(ellipse_80%_45%_at_50%_105%,rgba(0,204,255,0.14),transparent_70%)]" />
         <LaserCanvas className="absolute inset-0" />
@@ -30,9 +30,10 @@ export function Hero() {
             <MagneticLink href="/#member" variant="outline">Member werden</MagneticLink>
           </div>
         </div>
-        <h1 className="display text-[29vw] md:[font-size:min(30.5vw,46svh)] leading-[0.8]">
+        <h1 className="display text-[29vw] md:[font-size:min(30.5vw,46svh)] fp:md:[font-size:min(30.5vw,58svh)] leading-[0.8]">
           <Lines lines={["Z!NKBAD"]} delay={0.15} immediate />
         </h1>
+        <p className="label mt-6 hidden text-zinc fp:block">Scrollen ↓</p>
       </motion.div>
     </section>
   );

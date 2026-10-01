@@ -1,10 +1,12 @@
 import { EventList, type EventRowData } from "@/components/event-list";
 import { Footer } from "@/components/footer";
+import { Fullpage } from "@/components/fullpage";
 import { Hero } from "@/components/hero";
 import { InfoSection } from "@/components/info-section";
 import { MemberSection } from "@/components/member-section";
 import { MobileCta } from "@/components/mobile-cta";
 import { Nav } from "@/components/nav";
+import { Screen } from "@/components/screen";
 import { WeekendSection } from "@/components/weekend-section";
 import { flyerUrl, listUpcoming } from "@/lib/events";
 import { fmtDay, fmtTime, fmtWeekday } from "@/lib/format";
@@ -28,23 +30,27 @@ export default async function Home() {
   return (
     <>
       <Nav />
-      <main>
-        <Hero />
-        <WeekendSection events={highlight} isWeekend={weekend.length > 0} />
-        <MemberSection />
-
-        <section id="events" className="scroll-mt-16 border-t border-line px-5 py-20 md:px-10 md:py-28">
-          <div className="mb-10 border-b border-line pb-4">
-            <h2 className="display text-[clamp(2.5rem,6vw,5rem)]">Alle Events<span className="text-cyan">.</span></h2>
+      <Fullpage>
+        <Screen id="top" label="Start" hero><Hero /></Screen>
+        {highlight.length > 0 && (
+          <Screen id="wochenende" label={weekend.length ? "Dieses Wochenende" : "Nächste Party"}>
+            <WeekendSection events={highlight} isWeekend={weekend.length > 0} />
+          </Screen>
+        )}
+        <Screen id="member" label="Member"><MemberSection /></Screen>
+        <Screen id="events" label="Alle Events">
+          <div className="mb-6">
+            <h2 data-split className="display text-[clamp(2.25rem,4.5vw,3.75rem)]">Alle Events<span className="text-cyan">.</span></h2>
           </div>
           {rows.length ? <EventList events={rows} /> : (
             <p className="max-w-md text-lg text-zinc">Aktuell sind keine Events geplant. Neue Partys posten wir auf <a className="text-bone underline underline-offset-4 hover:text-cyan" href="https://www.instagram.com/zinkbad.ch" target="_blank" rel="noopener noreferrer">Instagram</a>.</p>
           )}
-        </section>
-
-        <InfoSection />
-      </main>
-      <Footer />
+        </Screen>
+        <Screen id="info" label="Info">
+          <InfoSection />
+          <Footer />
+        </Screen>
+      </Fullpage>
       <MobileCta />
     </>
   );

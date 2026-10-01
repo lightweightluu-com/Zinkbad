@@ -16,7 +16,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="de" className={`${body.variable} ${mono.variable} ${display.variable}`}>
+    <html lang="de" className={`${body.variable} ${mono.variable} ${display.variable}`} suppressHydrationWarning>
+      <head>
+        {/* Fullpage-Modus auf der Startseite schon vor dem ersten Paint, damit nichts springt */}
+        <script dangerouslySetInnerHTML={{ __html: 'if(location.pathname==="/"&&!matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("fp")' }} />
+      </head>
       <body>
         <SmoothScroll />
         {children}

@@ -3,14 +3,19 @@ import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-/** Mobile: feste Leiste mit Tickets / Member, sobald der Hero verlassen wurde. */
+/** Mobile: feste Leiste mit Tickets / Member, sobald der Hero verlassen wurde (Scroll oder Fullpage-Wechsel). */
 export function MobileCta() {
-  const [show, setShow] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [screen, setScreen] = useState(0);
   useEffect(() => {
-    const on = () => setShow(window.scrollY > window.innerHeight * 0.6);
-    on(); window.addEventListener("scroll", on, { passive: true });
-    return () => window.removeEventListener("scroll", on);
+    const on = () => setScrolled(window.scrollY > window.innerHeight * 0.6);
+    const fp = (e: Event) => setScreen((e as CustomEvent<{ index: number }>).detail.index);
+    on();
+    window.addEventListener("scroll", on, { passive: true });
+    window.addEventListener("fp-change", fp);
+    return () => { window.removeEventListener("scroll", on); window.removeEventListener("fp-change", fp); };
   }, []);
+  const show = scrolled || screen > 0;
   return (
     <AnimatePresence>
       {show && (

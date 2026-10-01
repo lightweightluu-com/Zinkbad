@@ -4,9 +4,9 @@ const MAPS = "https://www.google.com/maps/search/?api=1&query=Geerenweg+2+8048+Z
 
 export function InfoSection() {
   return (
-    <section id="info" className="scroll-mt-16 border-t border-line px-5 py-20 md:px-10 md:py-28">
+    <div>
       <div className="mb-10 border-b border-line pb-4">
-        <h2 className="display text-[clamp(2.5rem,6vw,5rem)]">Geerenweg 2, 8048 Zürich<span className="text-cyan">.</span></h2>
+        <h2 data-split className="display text-[clamp(2.5rem,6vw,5rem)]">Geerenweg 2, 8048 Zürich<span className="text-cyan">.</span></h2>
       </div>
       <Fade className="grid gap-10 md:grid-cols-3">
         <div><h3 className="label mb-4 text-zinc">Öffnungszeiten</h3>
@@ -17,6 +17,6 @@ export function InfoSection() {
           <p className="text-lg"><a href="mailto:booking@zinkbad.ch" className="underline underline-offset-4 hover:text-cyan">booking@zinkbad.ch</a><br />
             <a href="https://www.instagram.com/zinkbad.ch" target="_blank" rel="noopener noreferrer" className="underline underline-offset-4 hover:text-cyan">@zinkbad.ch ↗</a></p></div>
       </Fade>
-    </section>
+    </div>
   );
 }

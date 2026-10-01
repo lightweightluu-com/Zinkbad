@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant fp (&:where(.fp *));
+
 @theme {
   --color-ink: #0a0a0b;
   --color-graphite: #141416;
@@ -24,3 +26,12 @@ html.lenis, html.lenis body { height: auto; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
 @keyframes marquee { to { transform: translateX(-50%); } }
 .marquee-track { animation: marquee 28s linear infinite; }
+
+/* Fullpage-Modus (Startseite, per JS aktiviert): jede Sektion = ein Bildschirm */
+.fp, .fp body { height: 100%; overflow: hidden; overscroll-behavior: none; }
+.fp [data-screen] { position: fixed; inset: 0; visibility: hidden; }
+.fp main > [data-screen]:first-child { visibility: visible; } /* kein Leerframe vor der Initialisierung */
+.fp .fp-outer, .fp .fp-inner { width: 100%; height: 100%; overflow: hidden; }
+.fp .fp-bg { position: absolute; inset: 0; overflow-y: auto; overscroll-behavior: contain; background: var(--color-ink); scrollbar-width: none; }
+.fp .fp-bg::-webkit-scrollbar { display: none; }
+.fp-clip { overflow: hidden; padding: 0.12em 0; margin: -0.12em 0; }
