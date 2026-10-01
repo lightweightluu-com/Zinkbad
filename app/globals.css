@@ -35,3 +35,4 @@ html.lenis, html.lenis body { height: auto; }
 .fp .fp-bg { position: absolute; inset: 0; overflow-y: auto; overscroll-behavior: contain; background: var(--color-ink); scrollbar-width: none; }
 .fp .fp-bg::-webkit-scrollbar { display: none; }
 .fp-clip { overflow: hidden; padding: 0.12em 0; margin: -0.12em 0; }
+@keyframes fp-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(4px); } }

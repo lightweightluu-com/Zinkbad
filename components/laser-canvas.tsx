@@ -43,8 +43,10 @@ export function LaserCanvas({ image, emitters, className = "" }: { image: { widt
       ctx.lineCap = "round";
       for (const f of emitters) {
         const ox = offX + f.x * scale, oy = offY + f.y * scale;
-        for (let i = 0; i < f.beams; i++) {
-          const k = f.beams === 1 ? 0 : i / (f.beams - 1) - 0.5;
+        if (ox < -w * 0.5 || ox > w * 1.5) continue; // Quelle weit ausserhalb des Ausschnitts (Handy): überspringen
+        const beams = w < 768 ? Math.max(2, Math.ceil(f.beams / 2)) : f.beams; // auf kleinen Geräten halbe Last
+        for (let i = 0; i < beams; i++) {
+          const k = beams === 1 ? 0 : i / (beams - 1) - 0.5;
           // 0 = senkrecht nach oben: Winkel in Canvas-Richtung = -π/2 + Abweichung
           const a = -Math.PI / 2 + f.bias + k * f.range * 1.6 + Math.sin(t * f.speed * 2 + f.phase + i * 0.6) * f.range * 0.45;
           const ex = ox + Math.cos(a) * reach, ey = oy + Math.sin(a) * reach;

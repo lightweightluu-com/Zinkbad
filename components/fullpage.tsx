@@ -15,6 +15,7 @@ export function Fullpage({ children }: { children: React.ReactNode }) {
   const api = useRef<{ go: (i: number) => void } | null>(null);
   const [labels, setLabels] = useState<string[]>([]);
   const [active, setActive] = useState(0);
+  const [hint, setHint] = useState(true); // Scroll-Hinweis nur, wenn unter dem sichtbaren Inhalt nichts mehr folgt
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -39,6 +40,10 @@ export function Fullpage({ children }: { children: React.ReactNode }) {
     let animating = false;
     let lockUntil = 0;
     let lastScroll = 0;
+    const updateHint = () => {
+      const el = bg[current];
+      setHint(el.scrollHeight - el.clientHeight - el.scrollTop <= 24);
+    };
 
     gsap.set(sections, { autoAlpha: 0, zIndex: 0 });
     gsap.set(outer, { yPercent: 100 });
@@ -46,6 +51,8 @@ export function Fullpage({ children }: { children: React.ReactNode }) {
     gsap.set(sections[current], { autoAlpha: 1, zIndex: 1 });
     gsap.set([outer[current], inner[current]], { yPercent: 0 });
     setActive(current);
+    updateHint();
+    window.addEventListener("resize", updateHint);
     window.dispatchEvent(new CustomEvent("fp-change", { detail: { index: current } }));
 
     const go = (to: number, dir: 1 | -1) => {
@@ -58,13 +65,14 @@ export function Fullpage({ children }: { children: React.ReactNode }) {
 
       const tl = gsap.timeline({
         defaults: { duration: 1.1, ease: "power1.inOut" },
-        onComplete: () => { animating = false; lockUntil = performance.now() + 250; },
+        onComplete: () => { animating = false; lockUntil = performance.now() + 250; updateHint(); },
       });
       gsap.set(sections[from], { zIndex: 0 });
       tl.to(bg[from], { yPercent: -15 * dir }).set(sections[from], { autoAlpha: 0 });
 
       gsap.set(sections[to], { autoAlpha: 1, zIndex: 1 });
       bg[to].scrollTop = dir === -1 ? bg[to].scrollHeight : 0; // von unten kommend am Ende einsteigen
+      updateHint();
       tl.fromTo([outer[to], inner[to]], { yPercent: (i: number) => (i ? -100 * dir : 100 * dir) }, { yPercent: 0 }, 0)
         .fromTo(bg[to], { yPercent: 15 * dir }, { yPercent: 0 }, 0);
       const chars = splits[to]?.chars;
@@ -86,7 +94,7 @@ export function Fullpage({ children }: { children: React.ReactNode }) {
       if (canScroll(dir) || now - lastScroll < 200 || now < lockUntil) return; // Trägheit am Rand nicht als Sprung werten
       go(current + dir, dir);
     };
-    const onScroll = () => { lastScroll = performance.now(); };
+    const onScroll = () => { lastScroll = performance.now(); updateHint(); };
     bg.forEach((el) => el.addEventListener("scroll", onScroll, { passive: true }));
 
     const observer = Observer.create({
@@ -139,6 +147,7 @@ export function Fullpage({ children }: { children: React.ReactNode }) {
       window.removeEventListener("hashchange", onHash);
       window.removeEventListener("popstate", onHash);
       bg.forEach((el) => el.removeEventListener("scroll", onScroll));
+      window.removeEventListener("resize", updateHint);
       gsap.killTweensOf([sections, outer, inner, bg]);
       splits.forEach((s) => s?.revert());
       gsap.set([sections, outer, inner, bg], { clearProps: "all" });
@@ -150,6 +159,15 @@ export function Fullpage({ children }: { children: React.ReactNode }) {
   return (
     <>
       <main ref={root}>{children}</main>
+      {labels.length > 1 && (
+        <button type="button" onClick={() => api.current?.go(active >= labels.length - 1 ? 0 : active + 1)}
+          aria-label={active >= labels.length - 1 ? "Zurück zum Anfang" : "Zur nächsten Sektion"}
+          tabIndex={hint ? 0 : -1} aria-hidden={!hint}
+          className={`group fixed left-1/2 z-40 flex -translate-x-1/2 items-center gap-3 border border-bone/25 bg-ink/70 px-4 py-2.5 label text-bone transition-[opacity,color,border-color] duration-300 hover:border-cyan hover:text-cyan ${hint ? "opacity-100" : "pointer-events-none opacity-0"} ${active > 0 ? "bottom-[4.5rem] md:bottom-6" : "bottom-6"}`}>
+          {active >= labels.length - 1 ? "Nach oben" : "Scrollen"}
+          <span aria-hidden className={`text-cyan ${active >= labels.length - 1 ? "" : "animate-[fp-bob_1.6s_ease-in-out_infinite]"}`}>{active >= labels.length - 1 ? "↑" : "↓"}</span>
+        </button>
+      )}
       {labels.length > 1 && (
         <nav aria-label="Abschnitte" className="fixed right-4 top-1/2 z-50 hidden -translate-y-1/2 flex-col gap-1 md:flex">
           {labels.map((l, i) => (

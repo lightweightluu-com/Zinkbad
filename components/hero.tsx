@@ -8,10 +8,12 @@ import { Lines } from "./reveal";
 /** Clubfoto (2000×1116). Die Laser starten an den echten Moving-Heads an der Rückwand. */
 const PHOTO = { width: 2000, height: 1116 };
 const EMITTERS: Emitter[] = [
-  { x: 455, y: 340, bias: 0.55, beams: 5, range: 0.5, speed: 0.31, phase: 0.0 },
-  { x: 1090, y: 347, bias: 0.05, beams: 6, range: 0.6, speed: 0.23, phase: 1.7 },
-  { x: 1305, y: 340, bias: -0.2, beams: 5, range: 0.5, speed: 0.37, phase: 3.1 },
-  { x: 1545, y: 338, bias: -0.55, beams: 5, range: 0.5, speed: 0.27, phase: 4.4 },
+  { x: 455, y: 340, bias: 0.55, beams: 4, range: 0.5, speed: 0.31, phase: 0.0 },
+  { x: 705, y: 342, bias: 0.3, beams: 4, range: 0.5, speed: 0.29, phase: 2.2 },
+  { x: 893, y: 342, bias: 0.1, beams: 4, range: 0.5, speed: 0.34, phase: 5.1 },
+  { x: 1090, y: 347, bias: -0.05, beams: 5, range: 0.6, speed: 0.23, phase: 1.7 },
+  { x: 1305, y: 340, bias: -0.25, beams: 4, range: 0.5, speed: 0.37, phase: 3.1 },
+  { x: 1545, y: 338, bias: -0.55, beams: 4, range: 0.5, speed: 0.27, phase: 4.4 },
 ];
 
 export function Hero() {
@@ -39,7 +41,7 @@ export function Hero() {
       </motion.div>
       <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-ink to-transparent" />
 
-      <motion.div style={{ y: titleY, opacity: fade }} className="relative w-full px-5 pb-8 pt-28 md:px-10 md:pb-10">
+      <motion.div style={{ y: titleY, opacity: fade }} className="relative w-full px-5 pb-8 pt-28 md:px-10 md:pb-10 fp:pb-20 fp:md:pb-20">
         <div className="mb-6 flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
           <span className="label text-bone">Club — Zürich<br />Geerenweg 2</span>
           <div className="flex flex-wrap gap-3">
@@ -50,7 +52,6 @@ export function Hero() {
         <h1 className="display text-[29vw] md:[font-size:min(30.5vw,46svh)] fp:md:[font-size:min(30.5vw,58svh)] leading-[0.8]">
           <Lines lines={["Z!NKBAD"]} delay={0.15} immediate />
         </h1>
-        <p className="label mt-6 hidden text-zinc fp:block">Scrollen ↓</p>
       </motion.div>
     </section>
   );
