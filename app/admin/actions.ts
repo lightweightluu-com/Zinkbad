@@ -5,12 +5,42 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { MOCK_COOKIE, mockPasswordOk, mockSessionValue, requireAdmin } from "@/lib/auth";
 import { hasSupabase, isMock } from "@/lib/env";
-import { adminGet, createEvent, deleteEvent, removeFlyerFile, updateEvent, uploadFlyer, type StoredFlyer } from "@/lib/events";
+import { fetchEventfrog, fetchEventfrogImage } from "@/lib/eventfrog";
+import { adminGet, adminList, createEvent, deleteEvent, removeFlyerFile, updateEvent, uploadFlyer, type StoredFlyer } from "@/lib/events";
 import { sessionClient } from "@/lib/supabase/server";
-import { zurichLocalToIso } from "@/lib/time";
+import { isoToZurichLocal, zurichLocalToIso } from "@/lib/time";
 import { eventInput, type EventInput } from "@/lib/types";
 
 export interface FormState { error?: string }
+
+export interface EventfrogImport {
+  title: string; starts_at: string; ends_at: string; description: string; status: string;
+  flyer_url: string | null; ticket_url: string; venue: string | null; offers: string[]; duplicate: string | null;
+}
+export type EventfrogResult = { ok: true; data: EventfrogImport } | { ok: false; error: string };
+
+const canon = (u: string) => { try { const x = new URL(u); return `${x.hostname.replace(/^www\./, "")}${x.pathname.replace(/\/+$/, "")}`.toLowerCase(); } catch { return u; } };
+
+/** Liest ein Event von einer Eventfrog-Adresse und liefert Formularwerte (Zürcher Zeit). Nur für Admins. */
+export async function importFromEventfrog(url: string, currentId: string | null): Promise<EventfrogResult> {
+  await requireAdmin();
+  try {
+    const d = await fetchEventfrog(url);
+    const offers = d.offers.map((o) => `${o.name}${o.price !== null ? ` CHF ${Number.isInteger(o.price) ? o.price : o.price.toFixed(2)}.–` : ""}${o.soldOut ? " (ausverkauft)" : ""}`);
+    const description = [d.description, offers.length ? `Tickets (Eventfrog): ${offers.join(" · ")}` : ""].filter(Boolean).join("\n\n").slice(0, 4000);
+    const dup = (await adminList()).find((e) => e.id !== currentId && e.ticket_url && canon(e.ticket_url) === canon(d.url));
+    return {
+      ok: true,
+      data: {
+        title: d.title, starts_at: isoToZurichLocal(d.startsAt), ends_at: d.endsAt ? isoToZurichLocal(d.endsAt) : "",
+        description, status: d.suggestedStatus, flyer_url: d.flyerUrl, ticket_url: d.url, venue: d.venue, offers,
+        duplicate: dup ? dup.title : null,
+      },
+    };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Import fehlgeschlagen" };
+  }
+}
 
 export async function login(_: FormState, fd: FormData): Promise<FormState> {
   const password = String(fd.get("password") ?? "");
@@ -61,7 +91,12 @@ export async function saveEvent(id: string | null, _: FormState, fd: FormData): 
 
   let newFlyer: StoredFlyer | undefined;
   try {
-    if (file instanceof File && file.size > 0) newFlyer = await uploadFlyer(file);
+    const remote = String(fd.get("flyer_remote_url") ?? "").trim();
+    if (file instanceof File && file.size > 0) newFlyer = await uploadFlyer(file); // eigener Upload hat Vorrang
+    else if (remote) {
+      try { newFlyer = await uploadFlyer(await fetchEventfrogImage(remote)); }
+      catch (e) { return { error: `Flyer von Eventfrog konnte nicht geladen werden (${e instanceof Error ? e.message : "Fehler"}). Entferne die Flyer-Übernahme oder lade ein Bild hoch.` }; }
+    }
     if (id) {
       const removing = fd.get("remove_flyer") === "on" && !newFlyer;
       await updateEvent(id, parsed.data, newFlyer ?? (removing ? null : undefined));

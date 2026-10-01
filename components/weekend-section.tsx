@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { flyerUrl } from "@/lib/events";
 import { fmtDay, fmtTime, fmtWeekday } from "@/lib/format";
 import type { ClubEvent } from "@/lib/types";
@@ -21,16 +22,16 @@ export function WeekendSection({ events, isWeekend }: { events: ClubEvent[]; isW
           const flyer = flyerUrl(e.flyer_path);
           return (
             <Fade key={e.id} delay={i * 0.08} className="border-b border-line">
-              <article className={`grid gap-x-10 gap-y-3 py-4 md:gap-y-5 md:py-8 ${cols > 1 ? "" : "md:grid-cols-[minmax(0,5fr)_minmax(0,4fr)]"}`}>
+              <article className={`group relative grid gap-x-10 gap-y-3 py-4 md:gap-y-5 md:py-8 ${cols > 1 ? "" : "md:grid-cols-[minmax(0,5fr)_minmax(0,4fr)]"}`}>
                 {flyer
                   ? <Image src={flyer} alt={e.flyer_alt ?? e.title} width={1200} height={Math.round(1200 / (e.flyer_ratio ?? 2.35))} priority={i === 0} sizes={cols > 1 ? "(max-width: 1024px) 100vw, 33vw" : "(max-width: 768px) 100vw, 55vw"} className="h-auto w-full" />
                   : <div className="hidden bg-graphite md:block" />}
                 <div className="flex flex-col">
                   <p className="label text-cyan">{fmtWeekday(e.starts_at)} {fmtDay(e.starts_at)} · {fmtTime(e.starts_at)}{e.ends_at ? ` – ${fmtTime(e.ends_at)}` : ""}</p>
-                  <h3 className="display mt-3 text-[clamp(1.6rem,3vw,2.75rem)]">{e.title}</h3>
+                  <h3 className="display mt-3 text-[clamp(1.6rem,3vw,2.75rem)]"><Link href={`/events/${e.slug}`} className="after:absolute after:inset-0 after:content-[''] group-hover:text-cyan">{e.title}</Link></h3>
                   {e.lineup.length > 0 && <p className="label mt-3 text-zinc">{e.lineup.map((l) => l.name).join(" · ")}</p>}
                   {e.description && <p className="mt-3 max-w-md text-zinc">{e.description}</p>}
-                  <div className="mt-3 flex flex-wrap gap-3 md:mt-5"><TicketActions event={e} detailHref={`/tickets#${e.slug}`} /></div>
+                  <div className="relative z-10 mt-3 flex flex-wrap gap-3 md:mt-5"><TicketActions event={e} detailHref={`/events/${e.slug}`} /></div>
                 </div>
               </article>
             </Fade>

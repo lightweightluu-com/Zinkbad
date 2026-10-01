@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 import { Footer } from "@/components/footer";
 import { Nav } from "@/components/nav";
 import { TicketActions } from "@/components/ticket-actions";
@@ -29,7 +30,7 @@ export default async function Tickets() {
                 {flyer && <Image src={flyer} alt={e.flyer_alt ?? e.title} width={1600} height={Math.round(1600 / (e.flyer_ratio ?? 2.35))} priority={i === 0} sizes="(max-width: 1024px) 100vw, 1024px" className="mb-10 h-auto w-full max-w-5xl" />}
                 <div>
                   <p className="label text-zinc">{fmtLong(e.starts_at)} · {fmtTime(e.starts_at)}{e.ends_at ? ` – ${fmtTime(e.ends_at)}` : ""}</p>
-                  <h2 className="display mt-4 text-[clamp(2.5rem,7vw,6.5rem)]">{e.title}</h2>
+                  <h2 className="display mt-4 text-[clamp(2.5rem,7vw,6.5rem)]"><Link href={`/events/${e.slug}`} className="hover:text-cyan">{e.title}</Link></h2>
                   {e.lineup.length > 0 && <p className="label mt-6 text-zinc">{e.lineup.map((l) => l.name).join(" · ")}</p>}
                   {e.description && <p className="mt-6 max-w-xl text-lg text-zinc">{e.description}</p>}
                   <div className="mt-10 flex flex-wrap gap-3"><TicketActions event={e} /></div>

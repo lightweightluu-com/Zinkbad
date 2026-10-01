@@ -5,6 +5,7 @@ import { STATUSES, type ClubEvent } from "@/lib/types";
 import { removeEvent, saveEvent } from "../actions";
 import { DeleteButton, FormShell } from "./form-shell";
 import { LineupEditor, TicketEditor } from "./repeater";
+import { TicketLinkField } from "./ticket-link-field";
 
 const label = "mb-2 block uppercase tracking-widest text-zinc";
 const field = "w-full border border-line bg-graphite px-3 py-3 outline-none focus:border-cyan";
@@ -17,6 +18,8 @@ export function EventForm({ event }: { event?: ClubEvent }) {
       <Link href="/admin" className="text-zinc hover:text-cyan">← Events</Link>
       <h1 className="mb-10 mt-6 text-3xl font-bold tracking-tight">{event ? "Event bearbeiten" : "Neues Event"}</h1>
       <FormShell action={save}>
+        <div><label className={label} htmlFor="ticket_url">Ticket-Link (Eventfrog-Adresse einfügen: Infos werden automatisch geladen)</label>
+          <TicketLinkField defaultValue={event?.ticket_url ?? ""} currentId={event?.id ?? null} /></div>
         <div><label className={label} htmlFor="title">Titel</label>
           <input id="title" name="title" required maxLength={120} defaultValue={event?.title} className={field} /></div>
         <div className="grid grid-cols-2 gap-4">
@@ -31,8 +34,6 @@ export function EventForm({ event }: { event?: ClubEvent }) {
           <LineupEditor initial={event?.lineup ?? []} /></div>
         <div><span className={label}>Tickets (Kauf über Payrexx)</span>
           <TicketEditor initial={event?.tickets ?? []} /></div>
-        <div><label className={label} htmlFor="ticket_url">Externer Ticket-Link (optional, ersetzt Payrexx)</label>
-          <input id="ticket_url" name="ticket_url" type="url" defaultValue={event?.ticket_url ?? ""} className={field} /></div>
         <div><label className={label} htmlFor="flyer">Flyer (JPG/PNG/WebP, max. 6 MB)</label>
           {flyer && (<div className="mb-3 flex items-end gap-4">
             {/* eslint-disable-next-line @next/next/no-img-element */}
