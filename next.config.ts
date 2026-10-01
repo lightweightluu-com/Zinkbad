@@ -1,8 +1,8 @@
 import type { NextConfig } from "next";
+import { normalizeSupabaseUrl } from "./lib/supabase-url";
 
-const supabaseHost = process.env.NEXT_PUBLIC_SUPABASE_URL
-  ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).hostname
-  : null;
+const supabaseUrl = normalizeSupabaseUrl(process.env.NEXT_PUBLIC_SUPABASE_URL);
+const supabaseHost = supabaseUrl ? new URL(supabaseUrl).hostname : null;
 
 const config: NextConfig = {
   images: {
