@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { Footer } from "@/components/footer";
-import { MagneticLink } from "@/components/magnetic";
 import { Nav } from "@/components/nav";
+import { TicketActions } from "@/components/ticket-actions";
 import { Lines } from "@/components/reveal";
 import { flyerUrl, listUpcoming } from "@/lib/events";
 import { fmtLong, fmtTime } from "@/lib/format";
@@ -24,8 +24,7 @@ export default async function Tickets() {
         <ul className="border-t border-line">
           {events.map((e, i) => {
             const flyer = flyerUrl(e.flyer_path);
-            const closed = e.status === "cancelled" || e.status === "sold_out";
-            return (
+                        return (
               <li key={e.id} id={e.slug} className="scroll-mt-24 border-b border-line py-14">
                 {flyer && <Image src={flyer} alt={e.flyer_alt ?? e.title} width={1600} height={Math.round(1600 / (e.flyer_ratio ?? 2.35))} priority={i === 0} sizes="(max-width: 1024px) 100vw, 1024px" className="mb-10 h-auto w-full max-w-5xl" />}
                 <div>
@@ -33,15 +32,7 @@ export default async function Tickets() {
                   <h2 className="display mt-4 text-[clamp(2.5rem,7vw,6.5rem)]">{e.title}</h2>
                   {e.lineup.length > 0 && <p className="label mt-6 text-zinc">{e.lineup.map((l) => l.name).join(" · ")}</p>}
                   {e.description && <p className="mt-6 max-w-xl text-lg text-zinc">{e.description}</p>}
-                  <div className="mt-10 flex flex-wrap gap-4">
-                    {e.status === "cancelled" && <span className="label text-danger">Abgesagt</span>}
-                    {e.status === "sold_out" && <span className="label text-danger">Sold out</span>}
-                    {!closed && e.ticket_url && <MagneticLink href={e.ticket_url} external>Tickets ↗</MagneticLink>}
-                    {!closed && !e.ticket_url && e.tickets.map((t) => t.sold_out
-                      ? <span key={t.id} className="label border border-line px-7 py-4 text-zinc line-through">{t.label}</span>
-                      : <MagneticLink key={t.id} href={`/api/checkout?event=${e.slug}&ticket=${t.id}`} external>{t.label} — CHF {t.price_chf}</MagneticLink>)}
-                    {!closed && !e.ticket_url && e.tickets.length === 0 && <span className="label text-zinc">Ticketlink folgt</span>}
-                  </div>
+                  <div className="mt-10 flex flex-wrap gap-3"><TicketActions event={e} /></div>
                 </div>
               </li>
             );

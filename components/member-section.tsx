@@ -1,24 +1,22 @@
 import { MEMBER_TIERS } from "@/lib/membership";
 import { MagneticLink } from "./magnetic";
-import { Fade, Lines } from "./reveal";
+import { Fade } from "./reveal";
 
 export function MemberSection() {
   return (
-    <section id="member" className="px-5 py-40 md:px-10 md:py-56">
-      <p className="label mb-10 text-zinc">03 — Membership</p>
-      <h2 className="display text-[clamp(3.5rem,13vw,13rem)]"><Lines lines={["Zinkbad", "Member."]} /></h2>
-      <p className="mt-10 max-w-md text-lg text-zinc">Gültig für 1 Jahr ab Kaufdatum. Hol dir jetzt deine Membercard.</p>
-
-      <ul className="mt-24 border-t border-line">
+    <section id="member" className="scroll-mt-16 border-t border-line px-5 py-20 md:px-10 md:py-28">
+      <div className="mb-10 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2 border-b border-line pb-4">
+        <h2 className="display text-[clamp(2.5rem,6vw,5rem)]">Zinkbad Member<span className="text-cyan">.</span></h2>
+        <p className="label text-zinc">Gültig 1 Jahr ab Kaufdatum</p>
+      </div>
+      <ul className="grid gap-px bg-line md:grid-cols-3">
         {MEMBER_TIERS.map((t, i) => (
-          <li key={t.id} className="border-b border-line">
-            <Fade delay={i * 0.06} className="grid gap-x-10 gap-y-6 py-10 md:grid-cols-[1fr_1.4fr_auto] md:items-center md:py-14">
-              <div>
-                <h3 className="display text-[clamp(3rem,7vw,6.5rem)]">{t.name}</h3>
-                <p className="label mt-3 text-cyan">CHF {t.price_chf}.–</p>
-              </div>
-              <ul className="space-y-1 text-lg text-zinc">{t.perks.map((p) => <li key={p}>+ {p}</li>)}</ul>
-              <div><MagneticLink href={`/api/checkout?member=${t.id}`} external>Kaufen</MagneticLink></div>
+          <li key={t.id} className="bg-ink">
+            <Fade delay={i * 0.07} className="flex h-full flex-col p-6 md:p-8">
+              <h3 className="display text-[clamp(2.5rem,5vw,4.5rem)]">{t.name}</h3>
+              <p className="label mt-2 text-cyan">CHF {t.price_chf}.–</p>
+              <ul className="mt-8 space-y-2 text-zinc">{t.perks.map((p) => <li key={p}>+ {p}</li>)}</ul>
+              <div className="mt-auto pt-10"><MagneticLink href={`/api/checkout?member=${t.id}`} external>{t.name} kaufen</MagneticLink></div>
             </Fade>
           </li>
         ))}
