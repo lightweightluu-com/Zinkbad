@@ -53,6 +53,9 @@ export function Fullpage({ children }: { children: React.ReactNode }) {
     setActive(current);
     updateHint();
     window.addEventListener("resize", updateHint);
+    // Inhaltshöhe ändert sich (z. B. Filter in der Eventliste): Hinweis neu bewerten
+    const sizeObserver = new ResizeObserver(updateHint);
+    bg.forEach((el) => { if (el.firstElementChild) sizeObserver.observe(el.firstElementChild); });
     window.dispatchEvent(new CustomEvent("fp-change", { detail: { index: current } }));
 
     const go = (to: number, dir: 1 | -1) => {
@@ -148,6 +151,7 @@ export function Fullpage({ children }: { children: React.ReactNode }) {
       window.removeEventListener("popstate", onHash);
       bg.forEach((el) => el.removeEventListener("scroll", onScroll));
       window.removeEventListener("resize", updateHint);
+      sizeObserver.disconnect();
       gsap.killTweensOf([sections, outer, inner, bg]);
       splits.forEach((s) => s?.revert());
       gsap.set([sections, outer, inner, bg], { clearProps: "all" });

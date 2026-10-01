@@ -6,3 +6,7 @@ export const fmtDay = (iso: string) => parts(iso, { day: "2-digit", month: "2-di
 export const fmtWeekday = (iso: string) => parts(iso, { weekday: "short" }).replace(".", "");
 export const fmtTime = (iso: string) => parts(iso, { hour: "2-digit", minute: "2-digit" });
 export const fmtLong = (iso: string) => parts(iso, { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+
+export const fmtDayNum = (iso: string) => parts(iso, { day: "2-digit" });
+export const fmtMonthShort = (iso: string) => parts(iso, { month: "short" }).replace(".", "");
+export const fmtMonthLong = (iso: string) => parts(iso, { month: "long", year: "numeric" });
