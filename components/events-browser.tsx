@@ -91,7 +91,7 @@ export function EventsBrowser({ events }: { events: EventCardData[] }) {
           {[{ key: "all", short: "Alle", count: events.length }, ...months].map((m) => (
             <button key={m.key} type="button" aria-pressed={filter === m.key} onClick={() => { setFilter(m.key); setHover(null); }}
               className={`label shrink-0 border px-3 py-2 transition-colors ${filter === m.key ? "border-cyan bg-cyan font-bold text-ink" : "border-line text-zinc hover:border-bone hover:text-bone"}`}>
-              {m.short} <span className={filter === m.key ? "opacity-70" : "text-zinc/70"}>({m.count})</span>
+              {m.short} <span className={filter === m.key ? "opacity-70" : "text-zinc"}>({m.count})</span>
             </button>
           ))}
         </div>
