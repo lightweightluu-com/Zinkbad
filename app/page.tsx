@@ -9,7 +9,7 @@ import { Nav } from "@/components/nav";
 import { Screen } from "@/components/screen";
 import { WeekendSection } from "@/components/weekend-section";
 import { flyerUrl, listUpcoming } from "@/lib/events";
-import { fmtDayNum, fmtMonthLong, fmtMonthShort, fmtTime, fmtWeekday } from "@/lib/format";
+import { fmtDayNum, fmtMonthChip, fmtMonthLong, fmtMonthShort, fmtTime, fmtWeekday } from "@/lib/format";
 import { isoToZurichLocal } from "@/lib/time";
 import { weekendRange } from "@/lib/weekend";
 
@@ -29,7 +29,7 @@ export default async function Home() {
     const day = isoToZurichLocal(e.starts_at).slice(0, 10);
     return {
       slug: e.slug, title: e.title, weekday: fmtWeekday(e.starts_at), day: fmtDayNum(e.starts_at), month: fmtMonthShort(e.starts_at),
-      monthKey: day.slice(0, 7), monthLabel: fmtMonthLong(e.starts_at), time: fmtTime(e.starts_at), endTime: e.ends_at ? fmtTime(e.ends_at) : null,
+      monthKey: day.slice(0, 7), monthChip: fmtMonthChip(e.starts_at), monthLabel: fmtMonthLong(e.starts_at), time: fmtTime(e.starts_at), endTime: e.ends_at ? fmtTime(e.ends_at) : null,
       lineup: e.lineup.map((l) => l.name), description: e.description ? e.description.slice(0, 400) : null,
       flyer: flyerUrl(e.flyer_path), flyerRatio: e.flyer_ratio ?? 2.35, flyerAlt: e.flyer_alt ?? e.title,
       status: e.status, hasTickets: e.tickets.length > 0 || Boolean(e.ticket_url),

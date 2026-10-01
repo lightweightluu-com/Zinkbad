@@ -9,4 +9,6 @@ export const fmtLong = (iso: string) => parts(iso, { weekday: "long", day: "nume
 
 export const fmtDayNum = (iso: string) => parts(iso, { day: "2-digit" });
 export const fmtMonthShort = (iso: string) => parts(iso, { month: "short" }).replace(".", "");
+/** "Okt. 26" */
+export const fmtMonthChip = (iso: string) => parts(iso, { month: "short", year: "2-digit" });
 export const fmtMonthLong = (iso: string) => parts(iso, { month: "long", year: "numeric" });

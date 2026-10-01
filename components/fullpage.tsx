@@ -89,8 +89,8 @@ export function Fullpage({ children }: { children: React.ReactNode }) {
     const canScroll = (dir: 1 | -1) => {
       const el = bg[current];
       const max = el.scrollHeight - el.clientHeight;
-      if (max <= 2) return false;
-      return dir === 1 ? el.scrollTop < max - 2 : el.scrollTop > 2;
+      if (max <= 4) return false;
+      return dir === 1 ? el.scrollTop < max - 4 : el.scrollTop > 4;
     };
     const attempt = (dir: 1 | -1) => {
       const now = performance.now();
@@ -100,10 +100,39 @@ export function Fullpage({ children }: { children: React.ReactNode }) {
     const onScroll = () => { lastScroll = performance.now(); updateHint(); };
     bg.forEach((el) => el.addEventListener("scroll", onScroll, { passive: true }));
 
+    // Mausrad / Trackpad: GSAP Observer
     const observer = Observer.create({
-      target: window, type: "wheel,touch", wheelSpeed: -1, tolerance: 10, preventDefault: false,
+      target: window, type: "wheel", wheelSpeed: -1, tolerance: 10, preventDefault: false,
       onUp: () => attempt(1), onDown: () => attempt(-1),
     });
+
+    // Touch: eigene Erkennung. Entscheidend ist der Zustand beim Auflegen des Fingers:
+    // stand die Sektion da schon am Rand (oder passt sie auf den Bildschirm), zählt das Wischen als Sprung.
+    // So stört iOS-Trägheit / Gummiband (viele Scroll-Ereignisse) nicht mehr.
+    let touch: { x: number; y: number; t: number; lx: number; ly: number; up: boolean; down: boolean } | null = null;
+    const onTouchStart = (e: TouchEvent) => {
+      if (e.touches.length !== 1) { touch = null; return; }
+      const t = e.touches[0];
+      touch = { x: t.clientX, y: t.clientY, t: performance.now(), lx: t.clientX, ly: t.clientY, up: !canScroll(1), down: !canScroll(-1) };
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      if (!touch || e.touches.length !== 1) return;
+      touch.lx = e.touches[0].clientX; touch.ly = e.touches[0].clientY;
+    };
+    const finishTouch = () => {
+      const g = touch; touch = null;
+      if (!g) return;
+      const dy = g.y - g.ly, dx = g.x - g.lx, dt = Math.max(1, performance.now() - g.t);
+      if (Math.abs(dy) < Math.abs(dx) * 1.3) return; // horizontal (z. B. Filterleiste)
+      const fast = Math.abs(dy) / dt > 0.35;
+      if (Math.abs(dy) < (fast ? 24 : 56)) return;
+      const dir: 1 | -1 = dy > 0 ? 1 : -1; // Finger nach oben = nächste Sektion
+      if (dir === 1 ? g.up : g.down) go(current + dir, dir);
+    };
+    document.addEventListener("touchstart", onTouchStart, { passive: true });
+    document.addEventListener("touchmove", onTouchMove, { passive: true });
+    document.addEventListener("touchend", finishTouch, { passive: true });
+    document.addEventListener("touchcancel", finishTouch, { passive: true });
 
     const onKey = (e: KeyboardEvent) => {
       if (e.metaKey || e.ctrlKey || e.altKey) return;
@@ -145,6 +174,10 @@ export function Fullpage({ children }: { children: React.ReactNode }) {
 
     return () => {
       observer.kill();
+      document.removeEventListener("touchstart", onTouchStart);
+      document.removeEventListener("touchmove", onTouchMove);
+      document.removeEventListener("touchend", finishTouch);
+      document.removeEventListener("touchcancel", finishTouch);
       document.removeEventListener("keydown", onKey);
       document.removeEventListener("click", onClick, true);
       window.removeEventListener("hashchange", onHash);
@@ -170,6 +203,12 @@ export function Fullpage({ children }: { children: React.ReactNode }) {
           className={`group fixed left-1/2 z-40 flex -translate-x-1/2 items-center gap-3 border border-bone/25 bg-ink/70 px-4 py-2.5 label text-bone transition-[opacity,color,border-color] duration-300 hover:border-cyan hover:text-cyan ${hint ? "opacity-100" : "pointer-events-none opacity-0"} ${active > 0 ? "bottom-[4.5rem] md:bottom-6" : "bottom-6"}`}>
           {active >= labels.length - 1 ? "Nach oben" : "Scrollen"}
           <span aria-hidden className={`text-cyan ${active >= labels.length - 1 ? "" : "animate-[fp-bob_1.6s_ease-in-out_infinite]"}`}>{active >= labels.length - 1 ? "↑" : "↓"}</span>
+        </button>
+      )}
+      {labels.length > 1 && active > 0 && (
+        <button type="button" onClick={() => api.current?.go(active - 1)} aria-label="Zum vorherigen Abschnitt"
+          className="fixed bottom-[4.5rem] left-5 z-40 flex h-11 w-11 items-center justify-center border border-bone/25 bg-ink/70 text-cyan transition-colors hover:border-cyan md:bottom-6 md:left-10">
+          <span aria-hidden>↑</span>
         </button>
       )}
       {labels.length > 1 && (
